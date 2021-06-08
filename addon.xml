@@ -26,5 +26,8 @@ If you want change any delays, screensaver and other options go in addon setting
         <website>https://github.com/elbowz/partymode-autostart-xbmc-service</website>
         <source>https://github.com/elbowz/partymode-autostart-xbmc-service</source>
         <platform>all</platform>
+        <assets>
+            <icon>resources/icon.png</icon>
+        </assets>
     </extension>
 </addon>
