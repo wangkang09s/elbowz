@@ -5,9 +5,9 @@
        provider-name="muttley">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
-        <import addon="script.favourites" version="7.1.3"/>
+        <import addon="script.favourites" version="8.1.1"/>
     </requires>
-    <extension point="xbmc.service" library="PartymodeAutostart.py" start="login"/>
+    <extension point="xbmc.service" library="PartymodeAutostart.py"/>
     <extension point="xbmc.python.script" library="main.py">
         <provides>executable</provides>
     </extension>
@@ -22,12 +22,15 @@ If you want change any delays, screensaver and other options go in addon setting
         </description>
         <disclaimer lang="en">The author is not responsible for anything. Please review the code if you do not trust.</disclaimer>
         <license>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</license>
-        <forum>http://forum.xbmc.org/showthread.php?tid=203290</forum>
+        <forum>https://forum.kodi.tv/showthread.php?tid=203290</forum>
         <website>https://github.com/elbowz/partymode-autostart-xbmc-service</website>
         <source>https://github.com/elbowz/partymode-autostart-xbmc-service</source>
         <platform>all</platform>
         <assets>
             <icon>resources/icon.png</icon>
+            <screenshot>resources/screenshot01.png</screenshot>
+            <screenshot>resources/screenshot02.png</screenshot>
+            <screenshot>resources/screenshot03.png</screenshot>
         </assets>
     </extension>
 </addon>

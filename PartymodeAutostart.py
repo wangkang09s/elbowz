@@ -1,4 +1,3 @@
-from __future__ import division
 import xbmc, xbmcgui, xbmcaddon
 
 __addon__           = xbmcaddon.Addon()
@@ -13,7 +12,7 @@ __language__        = __addon__.getLocalizedString
 
 def log(txt):
     message = u'%s: %s' % (__addonid__, txt)
-    xbmc.log(msg=message, level=xbmc.LOGINFO)
+    xbmc.log(msg=message, level=xbmc.LOGDEBUG)
 
 def executeJSONRPC(jsonStr):
     import json
@@ -32,11 +31,10 @@ class Main:
         if self.startupPartyMode and self._viewCountdown():
             self.runPartyMode()
 
-        KODIMONITOR = xbmc.Monitor()
-        KODIMONITOR.waitForAbort( 5 )            
+        # keep addon alive waiting kodi close (ie. daemon mode)
+        self.serviceMonitor.waitForAbort()
 
-        # while not xbmc.abortRequested:
-        #     xbmc.sleep(1000)
+        log('correctly closed')
 
     def _getSettings(self):
         log('reading settings')
@@ -125,18 +123,20 @@ class Main:
                 log('Avoid PartyMode on Screensaver because something is paused')
 
             else:
-                xbmc.executebuiltin((u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(30100), 6000, __icon__)).encode('utf-8', 'ignore'))
+                xbmc.executebuiltin(u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(30100), 6000, __icon__))
 
                 self.runPartyMode()
 
     def _viewCountdown(self):
         conutdownDlg = xbmcgui.DialogProgress()
+
         if self.startupPlaylist:
             msg = 30103
         elif self.startupFavourites:
             msg = 30104
         else:
             msg = 30102
+
         conutdownDlg.create( __language__(30101), __language__(msg) % self.delayStartupPartyMode)
 
         finished = True
@@ -148,10 +148,9 @@ class Main:
         while time < startDelayPartyModeSeconds:
 
             percent = int((time / startDelayPartyModeSeconds) * 100)
+            seconds = (startDelayPartyModeSeconds - time) / 1000
 
-            seconds = str((startDelayPartyModeSeconds - time) / 1000) + ' seconds'
-
-            conutdownDlg.update(percent)
+            conutdownDlg.update(percent, __language__(msg) % seconds)
 
             xbmc.sleep(countdownGap)
             time += countdownGap

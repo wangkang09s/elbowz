@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import xbmc, xbmcaddon
 
 def handleArg(arg):
