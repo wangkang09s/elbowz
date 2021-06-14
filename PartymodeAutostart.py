@@ -1,4 +1,3 @@
-from __future__ import division
 import xbmc, xbmcgui, xbmcaddon
 
 __addon__           = xbmcaddon.Addon()
@@ -12,11 +11,8 @@ __language__        = __addon__.getLocalizedString
 
 
 def log(txt):
-    if isinstance(txt, str):
-        txt = txt.decode("utf-8")
-
     message = u'%s: %s' % (__addonid__, txt)
-    xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
+    xbmc.log(msg=message, level=xbmc.LOGDEBUG)
 
 def executeJSONRPC(jsonStr):
     import json
@@ -35,8 +31,10 @@ class Main:
         if self.startupPartyMode and self._viewCountdown():
             self.runPartyMode()
 
-        while not xbmc.abortRequested:
-            xbmc.sleep(1000)
+        # keep addon alive waiting kodi close (ie. daemon mode)
+        self.serviceMonitor.waitForAbort()
+
+        log('correctly closed')
 
     def _getSettings(self):
         log('reading settings')
@@ -69,9 +67,9 @@ class Main:
             log('Start Playlist: ' + self.startupPlaylistPath)
 
             if self.startupPlaylistPartymode:
-                xbmc.executebuiltin("XBMC.PlayerControl(PartyMode(" + self.startupPlaylistPath + ")")
+                xbmc.executebuiltin("PlayerControl(PartyMode(" + self.startupPlaylistPath + ")")
             else:
-                xbmc.executebuiltin("XBMC.PlayMedia(" + self.startupPlaylistPath + ")")
+                xbmc.executebuiltin("PlayMedia(" + self.startupPlaylistPath + ")")
 
         elif self.startupFavourites:
 
@@ -83,24 +81,24 @@ class Main:
 
             log('Start PartyMode')
 
-            xbmc.executebuiltin("XBMC.PlayerControl(PartyMode)")
+            xbmc.executebuiltin("PlayerControl(PartyMode)")
 
         if self.playbackRandom == 1:
             log('Setting Random to Off')
-            xbmc.executebuiltin("XBMC.PlayerControl(RandomOff)")
+            xbmc.executebuiltin("PlayerControl(RandomOff)")
         elif self.playbackRandom == 2:
             log('Setting Random to On')
-            xbmc.executebuiltin("XBMC.PlayerControl(RandomOn)")
+            xbmc.executebuiltin("PlayerControl(RandomOn)")
 
         if self.playbackRepeat == 1:
             log('Setting Repeat to Off')
-            xbmc.executebuiltin("XBMC.PlayerControl(RepeatOff)")
+            xbmc.executebuiltin("PlayerControl(RepeatOff)")
         elif self.playbackRepeat == 2:
             log('Setting Repeat to One')
-            xbmc.executebuiltin("XBMC.PlayerControl(RepeatOne)")
+            xbmc.executebuiltin("PlayerControl(RepeatOne)")
         elif self.playbackRepeat == 3:
             log('Setting Repeat to All')
-            xbmc.executebuiltin("XBMC.PlayerControl(RepeatAll)")
+            xbmc.executebuiltin("PlayerControl(RepeatAll)")
 
         self.activateVisualisation()
 
@@ -114,7 +112,7 @@ class Main:
 
             # if user have not stopped party mode in meantime
             if xbmc.Player().isPlaying():
-                xbmc.executebuiltin("XBMC.ActivateWindow(visualisation)")
+                xbmc.executebuiltin("ActivateWindow(visualisation)")
 
 
     def _onScreensaverAction(self):
@@ -125,18 +123,20 @@ class Main:
                 log('Avoid PartyMode on Screensaver because something is paused')
 
             else:
-                xbmc.executebuiltin((u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(30100), 6000, __icon__)).encode('utf-8', 'ignore'))
+                xbmc.executebuiltin(u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(30100), 6000, __icon__))
 
                 self.runPartyMode()
 
     def _viewCountdown(self):
         conutdownDlg = xbmcgui.DialogProgress()
+
         if self.startupPlaylist:
             msg = 30103
         elif self.startupFavourites:
             msg = 30104
         else:
             msg = 30102
+
         conutdownDlg.create( __language__(30101), __language__(msg) % self.delayStartupPartyMode)
 
         finished = True
@@ -148,10 +148,9 @@ class Main:
         while time < startDelayPartyModeSeconds:
 
             percent = int((time / startDelayPartyModeSeconds) * 100)
+            seconds = (startDelayPartyModeSeconds - time) / 1000
 
-            seconds = str((startDelayPartyModeSeconds - time) / 1000) + ' seconds'
-
-            conutdownDlg.update(percent, '', '', seconds)
+            conutdownDlg.update(percent, __language__(msg) % seconds)
 
             xbmc.sleep(countdownGap)
             time += countdownGap
